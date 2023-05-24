@@ -1,19 +1,11 @@
 package com.example.person
 
 
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
-import android.view.inputmethod.EditorInfo
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.TextView
-import com.example.person.model.Person
-import java.util.ArrayList
-import java.util.Observable
-import java.util.Observer
 
-class TitleController(val view : TitleFragment) :Observer {
+import android.widget.TextView
+import com.example.person.model.PersonState
+import com.example.person.model.PersonViewModel
+class TitleController(val view : TitleFragment, val chief : PersonViewModel)  {
     lateinit var context: MainActivity
 
     lateinit var title: TextView
@@ -26,13 +18,15 @@ class TitleController(val view : TitleFragment) :Observer {
             println("context is not null")
             this.title = view.textView
             title.text = context.selectedTeam.chief.toString()
-            context.chief.addObserver(this)
-        }
-    }
 
-    override fun update(o: Observable?, arg: Any?) {
-        if ( context.selectedTeam.chief == context.selectedPerson ) {
-            context.titleController.title.setText(context.selectedPerson.toString())
+            this.chief.state.observe(
+                context,
+                androidx.lifecycle.Observer<PersonState> { state ->
+                    if (state != null) {
+                        title.text = chief.toString()
+                    }
+                }
+            )
         }
     }
 }

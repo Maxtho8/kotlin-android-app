@@ -2,21 +2,24 @@ package com.example.person
 
 import android.util.Log
 import android.widget.ArrayAdapter
+import androidx.lifecycle.MutableLiveData
 import com.example.person.model.Person
+import com.example.person.model.PersonState
+import com.example.person.model.PersonViewModel
 import java.util.ArrayList
 import java.util.Observable
 import java.util.Observer
 
-class ListController(val view : ListFragment, var list: ArrayList<Person>) : Observer{
-    lateinit var context : MainActivity
+class ListController(val view : ListFragment, var list: MutableList<PersonViewModel>) {
+    lateinit var context: MainActivity
+
     init {
         this.context = view.activity as MainActivity
-        if (context == null ){
+        if (context == null) {
             println("context is null")
-        }
-        else {
+        } else {
             println("context is not null")
-            val adapter = ArrayAdapter<Person>(
+            val adapter = ArrayAdapter<PersonViewModel>(
                 context,
                 android.R.layout.simple_list_item_1,
                 list
@@ -27,23 +30,21 @@ class ListController(val view : ListFragment, var list: ArrayList<Person>) : Obs
             }
 
             for (person in list) {
-                Log.println(Log.VERBOSE, "Person", "add observer: " + person)
-                person.addObserver(this)
+                person.state.observe(
+                    context,
+                    androidx.lifecycle.Observer<PersonState> { state ->
+                        if (state != null) {
+                            adapter.notifyDataSetChanged()
+                        }
+                    }
+                )
             }
         }
-
     }
 
-    fun onClickItem(index : Int){
+    fun onClickItem(index: Int) {
         val person = list[index]
-        println("selected person : " + person)
-        context.selectedPerson = person
+        context.selectedPerson = MutableLiveData(person)
         context.editController.textInput.setText(person.firstname)
     }
-
-    override fun update(o: Observable?, arg: Any?) {
-        val person = o as Person
-        // log the chang
-        Log.println(Log.VERBOSE, "Person", "update: " + person)
-        (view.listView.adapter as ArrayAdapter<Person>).notifyDataSetChanged()
-    }}
+}

@@ -27,8 +27,8 @@ class EditController(val view : EditTextFragment)  {
             this.textInput = view.editText
             textInput.setOnEditorActionListener { v, actionId, event ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    print(v.text.toString())
-                    context.selectedPerson?.firstname = v.text.toString()
+                    Log.println(Log.VERBOSE, "EditController", "set firstname: " + v.text.toString())
+                    context.selectedPerson.value!!.firstname = v.text.toString()
                     v.text = ""
                     true
 
